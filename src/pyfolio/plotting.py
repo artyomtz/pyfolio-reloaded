@@ -552,6 +552,7 @@ def show_perf_stats(
     bootstrap=False,
     header_rows=None,
     return_df=False,
+    display_stats=True
 ):
     """
     Prints some performance metrics of the strategy.
@@ -680,6 +681,7 @@ def show_perf_stats(
         perf_stats,
         float_format="{0:.2f}".format,
         header_rows=header_rows,
+        display_table=display_stats
     )
 
 
@@ -1164,6 +1166,7 @@ def show_and_plot_top_positions(
     hide_positions=False,
     legend_loc="real_best",
     ax=None,
+    display_positions=True,
     **kwargs,
 ):
     """
@@ -1206,18 +1209,21 @@ def show_and_plot_top_positions(
             pd.DataFrame(df_top_long * 100, columns=["max"]),
             float_format="{0:.2f}%".format,
             name="Top 10 long positions of all time",
+            display_table=display_positions
         )
 
         utils.print_table(
             pd.DataFrame(df_top_short * 100, columns=["max"]),
             float_format="{0:.2f}%".format,
             name="Top 10 short positions of all time",
+            display_table=display_positions
         )
 
         utils.print_table(
             pd.DataFrame(df_top_abs * 100, columns=["max"]),
             float_format="{0:.2f}%".format,
             name="Top 10 positions of all time",
+            display_table=display_positions
         )
 
     if show_and_plot == 0 or show_and_plot == 2:
@@ -1763,7 +1769,7 @@ def plot_txn_time_hist(
     return ax
 
 
-def show_worst_drawdown_periods(returns, top=5):
+def show_worst_drawdown_periods(returns, top=5, display_periods=True):
     """
     Prints information about the worst drawdown periods.
 
@@ -1784,6 +1790,7 @@ def show_worst_drawdown_periods(returns, top=5):
         drawdown_df.sort_values("Net drawdown in %", ascending=False),
         name="Worst drawdown periods",
         float_format="{0:.2f}".format,
+        display_table=display_periods
     )
 
 
@@ -1898,7 +1905,7 @@ def plot_round_trip_lifetimes(round_trips, disp_amount=16, lsize=18, ax=None):
     return ax
 
 
-def show_profit_attribution(round_trips):
+def show_profit_attribution(round_trips, display_attrib=True):
     """
     Prints the share of total PnL contributed by each
     traded name.
@@ -1929,6 +1936,7 @@ def show_profit_attribution(round_trips):
         ),
         name="Profitability (PnL / PnL total) per name",
         float_format="{:.2%}".format,
+        display_table=display_attrib
     )
 
 

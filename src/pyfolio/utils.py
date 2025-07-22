@@ -186,7 +186,7 @@ def extract_rets_pos_txn_from_zipline(backtest):
     return returns, positions, transactions
 
 
-def print_table(table, name=None, float_format=None, formatters=None, header_rows=None):
+def print_table(table, name=None, float_format=None, formatters=None, header_rows=None, display_table=True):
     """
     Pretty print a pandas DataFrame.
 
@@ -233,7 +233,10 @@ def print_table(table, name=None, float_format=None, formatters=None, header_row
         # Inject the new HTML
         html = html.replace("<thead>", "<thead>" + rows)
 
-    display(HTML(html))
+    if display_table:
+        display(HTML(html))
+
+    return html
 
 
 def standardize_data(x):
