@@ -270,6 +270,7 @@ def show_perf_attrib_stats(
     factor_loadings,
     transactions=None,
     pos_in_dollars=True,
+    display_stats=True
 ):
     """
     Calls `perf_attrib` using inputs, and displays outputs using
@@ -313,7 +314,7 @@ def show_perf_attrib_stats(
         summary_stats["Specific Sharpe Ratio"]
     )
 
-    print_table(summary_stats, name="Summary Statistics")
+    print_table(summary_stats, name="Summary Statistics", display_table=display_stats)
 
     print_table(
         risk_exposure_stats,
@@ -325,6 +326,7 @@ def show_perf_attrib_stats(
             "Annualized Return": percentage_formatter,
             "Cumulative Return": percentage_formatter,
         },
+        display_table=display_stats
     )
 
 

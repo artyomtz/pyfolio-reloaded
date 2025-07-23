@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import warnings
+import sys
 from time import time
 
 import empyrical as ep
@@ -86,7 +87,8 @@ def create_full_tear_sheet(
     pos_in_dollars=True,
     header_rows=None,
     factor_partitions=FACTOR_PARTITIONS,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate a number of tear sheets that are useful
@@ -208,14 +210,16 @@ def create_full_tear_sheet(
         turnover_denom=turnover_denom,
         header_rows=header_rows,
         set_context=set_context,
-        display_sheet=display_sheet
+        display_sheet=display_sheet,
+        fh=fh
     )
 
     create_interesting_times_tear_sheet(
         returns,
         benchmark_rets=benchmark_rets,
         set_context=set_context,
-        display_sheet=display_sheet
+        display_sheet=display_sheet,
+        fh=fh
     )
 
     if positions is not None:
@@ -226,7 +230,8 @@ def create_full_tear_sheet(
             set_context=set_context,
             sector_mappings=sector_mappings,
             estimate_intraday=False,
-            display_sheet=display_sheet
+            display_sheet=display_sheet,
+            fh=fh
         )
 
         if transactions is not None:
@@ -237,7 +242,8 @@ def create_full_tear_sheet(
                 unadjusted_returns=unadjusted_returns,
                 estimate_intraday=False,
                 set_context=set_context,
-                display_sheet=display_sheet
+                display_sheet=display_sheet,
+                fh=fh
             )
             if round_trips:
                 create_round_trip_tear_sheet(
@@ -246,7 +252,8 @@ def create_full_tear_sheet(
                     transactions=transactions,
                     sector_mappings=sector_mappings,
                     estimate_intraday=False,
-                    display_sheet=display_sheet
+                    display_sheet=display_sheet,
+                    fh=fh
                 )
 
             if market_data is not None:
@@ -258,7 +265,8 @@ def create_full_tear_sheet(
                     liquidation_daily_vol_limit=0.2,
                     last_n_days=125,
                     estimate_intraday=False,
-                    display_sheet=display_sheet
+                    display_sheet=display_sheet,
+                    fh=fh
                 )
 
         if factor_returns is not None and factor_loadings is not None:
@@ -270,7 +278,8 @@ def create_full_tear_sheet(
                 transactions,
                 pos_in_dollars=pos_in_dollars,
                 factor_partitions=factor_partitions,
-                display_sheet=display_sheet
+                display_sheet=display_sheet,
+                fh=fh
             )
 
 
@@ -285,7 +294,8 @@ def create_simple_tear_sheet(
     live_start_date=None,
     turnover_denom="AGB",
     header_rows=None,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Simpler version of create_full_tear_sheet; generates summary performance
@@ -488,7 +498,8 @@ def create_returns_tear_sheet(
     turnover_denom="AGB",
     header_rows=None,
     return_fig=False,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate a number of plots for analyzing a strategy's returns.
@@ -683,7 +694,8 @@ def create_position_tear_sheet(
     transactions=None,
     estimate_intraday="infer",
     return_fig=False,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate a number of plots for analyzing a
@@ -790,7 +802,8 @@ def create_txn_tear_sheet(
     unadjusted_returns=None,
     estimate_intraday="infer",
     return_fig=False,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate a number of plots for analyzing a strategy's transactions.
@@ -891,7 +904,8 @@ def create_round_trip_tear_sheet(
     sector_mappings=None,
     estimate_intraday="infer",
     return_fig=False,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate a number of figures and plots describing the duration,
@@ -988,7 +1002,8 @@ def create_interesting_times_tear_sheet(
     periods=None,
     legend_loc="best",
     return_fig=False,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate a number of returns plots around interesting points in time,
@@ -1094,6 +1109,7 @@ def create_capacity_tear_sheet(
     estimate_intraday="infer",
     return_fig=False,
     display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generates a report detailing portfolio size constraints set by
@@ -1144,7 +1160,8 @@ def create_capacity_tear_sheet(
         "assuming a 20% limit on daily bar consumption \n"
         "and trailing 5 day mean volume as the available bar volume.\n\n"
         "Tickers with >1 day liquidation time at a"
-        " constant $1m capital base:"
+        " constant $1m capital base:",
+        file=fh
     )
 
     max_days_by_ticker = capacity.get_max_days_to_liquidate_by_ticker(
@@ -1156,7 +1173,7 @@ def create_capacity_tear_sheet(
     )
     max_days_by_ticker.index = max_days_by_ticker.index.map(utils.format_asset)
 
-    print("Whole backtest:")
+    print("Whole backtest:", file=fh)
     utils.print_table(
         max_days_by_ticker[
             max_days_by_ticker.days_to_liquidate > days_to_liquidate_limit
@@ -1174,7 +1191,7 @@ def create_capacity_tear_sheet(
     )
     max_days_by_ticker_lnd.index = max_days_by_ticker_lnd.index.map(utils.format_asset)
 
-    print("Last {} trading days:".format(last_n_days))
+    print("Last {} trading days:".format(last_n_days), file=fh)
     utils.print_table(
         max_days_by_ticker_lnd[max_days_by_ticker_lnd.days_to_liquidate > 1],
         display_table=display_sheet
@@ -1185,7 +1202,8 @@ def create_capacity_tear_sheet(
 
     print(
         "Tickers with daily transactions consuming >{}% of daily bar \n"
-        "all backtest:".format(trade_daily_vol_limit * 100)
+        "all backtest:".format(trade_daily_vol_limit * 100),
+        file=fh
     )
     utils.print_table(
         llt[llt["max_pct_bar_consumed"] > trade_daily_vol_limit * 100],
@@ -1195,7 +1213,7 @@ def create_capacity_tear_sheet(
         transactions, market_data, last_n_days=last_n_days
     )
 
-    print("Last {} trading days:".format(last_n_days))
+    print("Last {} trading days:".format(last_n_days), file=fh)
     utils.print_table(
         llt[llt["max_pct_bar_consumed"] > trade_daily_vol_limit * 100],
         display_table=display_sheet)
@@ -1227,7 +1245,8 @@ def create_perf_attrib_tear_sheet(
     pos_in_dollars=True,
     factor_partitions=FACTOR_PARTITIONS,
     return_fig=False,
-    display_sheet=True
+    display_sheet=True,
+    fh=sys.stdout
 ):
     """
     Generate plots and tables for analyzing a strategy's performance.
@@ -1288,6 +1307,7 @@ def create_perf_attrib_tear_sheet(
         factor_loadings,
         transactions,
         pos_in_dollars,
+        display_stats=display_sheet
     )
 
     # one section for the returns plot, and for each factor grouping
